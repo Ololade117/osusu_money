@@ -148,3 +148,52 @@ class SusuGroup:
         g.payouts = [tuple(p) for p in d["payouts"]]
         g.locked = d["locked"]
         return g
+
+
+# ---------- CLI ----------
+STATE = "susu.json"
+USAGE = """Usage:
+  susu.py create <weekly_amount>
+  susu.py add <name>
+  susu.py pay <name> <amount>
+  susu.py close
+  susu.py report"""
+
+
+def main(argv):
+    if not argv:
+        print(USAGE); return 1
+    cmd, args = argv[0], argv[1:]
+    try:
+        if cmd == "create":
+            if len(args) != 1:
+                raise SusuError("create needs: <weekly_amount>")
+            g = SusuGroup(args[0])
+            print(f"Group created: GHS {fmt(g.weekly)} per week.")
+        else:
+            try:
+                with open(STATE) as f:
+                    g = SusuGroup.from_dict(json.load(f))
+            except FileNotFoundError:
+                raise SusuError("No group yet. Run: create <weekly_amount>")
+            if cmd == "add" and len(args) == 1:
+                g.add_member(args[0]); print(f"Added {args[0].strip()}.")
+            elif cmd == "pay" and len(args) == 2:
+                rem = g.contribute(args[0], args[1])
+                print("Recorded. " + (f"Still owes {fmt(rem)}." if rem
+                                      else "Paid in full."))
+            elif cmd == "close" and not args:
+                print(g.close_week()[1])
+            elif cmd == "report" and not args:
+                print(g.report())
+            else:
+                print(USAGE); return 1
+        with open(STATE, "w") as f:
+            json.dump(g.to_dict(), f)
+        return 0
+    except SusuError as e:
+        print(f"Error: {e}"); return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
