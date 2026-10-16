@@ -1,3 +1,29 @@
+import json
+import sys
+from decimal import Decimal, InvalidOperation
+
+
+class SusuError(Exception):
+    pass
+
+
+def parse_money(value) -> int:
+    """Parse a money string/number into integer pesewas, exactly."""
+    try:
+        d = Decimal(str(value).strip())
+    except (InvalidOperation, AttributeError):
+        raise SusuError(f"Invalid amount: {value!r}")
+    if not d.is_finite():
+        raise SusuError(f"Invalid amount: {value!r}")
+    cents = d * 100
+    if cents != cents.to_integral_value():
+        raise SusuError("Amount may have at most 2 decimal places.")
+    return int(cents)
+
+
+def fmt(p: int) -> str:
+    return f"{p // 100}.{p % 100:02d}"
+
 class SusuGroup:
     def __init__(self, weekly_amount):
         amt = parse_money(weekly_amount)
