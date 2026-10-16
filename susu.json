@@ -1,1 +1,1 @@
-{"weekly": 100000, "members": ["Ella", "Beatle", "James"], "paid": {"Ella": 0, "Beatle": 0, "James": 0}, "week": 4, "payouts": [[1, "Ella", 300000], [2, "Beatle", 300000], [3, "James", 300000]], "locked": true}
+{"weekly": 10000, "members": ["Ella"], "paid": {"Ella": 0}, "week": 2, "payouts": [[1, "Ella", 10000]], "locked": true}
